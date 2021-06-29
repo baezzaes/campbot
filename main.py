@@ -1,14 +1,14 @@
 from selenium import webdriver
-import datetime
 from datetime import date
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import time
 import telegram
 
 # Telegram Setting
 chat = telegram.Bot(token = "1824090062:AAGCxw7oRV_RpC9kWrt8DN4fblurkzpnRn4")
-#chat_id = "-1001512203758"
-chat_id = "1510104965"
+chat_id = "-1001512203758"
+#chat_id = "1510104965"
 # text = "Hi"
 # chat.sendMessage(chat_id = chat_id, text=text)
 # quit()
@@ -36,11 +36,11 @@ weekNo = 0
 while True:
     if chkday.weekday() == 4:
         fridays.append(str(chkday))
-        sundays.append(str(chkday + datetime.timedelta(days=2)))
+        sundays.append(str(chkday + timedelta(days=2)))
         weekNo+=1
         if weekNo == 12:
             break
-    chkday = chkday + datetime.timedelta(days=1)
+    chkday = chkday + timedelta(days=1)
 
 #driver.get("https://m.booking.naver.com/booking/3/bizes/481805/items?startDate=2021-07-30&endDate=2021-08-01")
 driver.implicitly_wait(3)
@@ -97,30 +97,32 @@ ableCnt = 0
 driver.get(url)
 
 # 이번달
+rMonth = driver.find_element_by_css_selector("caption").text
+rDate = datetime.strptime(rMonth+".01", "%Y. %m.%d")
 days = driver.find_elements_by_css_selector("td[id^=calendar]>strong")
 finds = driver.find_elements_by_css_selector(".s3 span")
 for i in range(0, len(days)):
     if finds[i].text != "0":
         ableCnt+=1
-        rDate = date.today()
         rDate = rDate.replace(day = int(days[i].text))
         day = rDate.weekday()
-        print(str(rDate) + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개")
-        string += str(rDate) + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개\n"
+        print(rDate.strftime("%m-%d") + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개")
+        string += rDate.strftime("%m-%d") + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개\n"
 
 # 다음달
 driver.find_element_by_css_selector(".nextmonth").click()
 time.sleep(1)
+rMonth = driver.find_element_by_css_selector("caption").text
+rDate = datetime.strptime(rMonth+".01", "%Y. %m.%d")
 days = driver.find_elements_by_css_selector("td[id^=calendar]>strong")
 finds = driver.find_elements_by_css_selector(".s3 span")
 for i in range(0, len(days)):
     if finds[i].text != "0":
         ableCnt+=1
-        rDate = date.today() + relativedelta(months=1)
         rDate = rDate.replace(day = int(days[i].text))
         day = rDate.weekday()
-        print(str(rDate) + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개")
-        string += str(rDate) + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개\n"
+        print(rDate.strftime("%m-%d") + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개")
+        string += rDate.strftime("%m-%d") + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개\n"
 
 string += url
 if ableCnt > 0:
