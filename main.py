@@ -67,7 +67,11 @@ for k in dicCamp.keys():
             result = "O"
             finds = driver.find_elements_by_css_selector(".summary_body .desc_title")
             for j in finds:
-                if j.text != "카라반 CARAVAN" and j.text != "캠프렛 CAMPLET":       # 물왕숲 제외 SITE
+                if j.text == "카라반 CARAVAN" and j.text == "캠프렛 CAMPLET" and j.text == "차박&루프탑&파쇄석 존":       # 물왕숲 제외 SITE
+                    continue
+                if j.text.find("펜션") > 0:
+                    continue
+                else:
                     sites.append(j.text.replace("(2박 우선예약)", ""))
 
             if len(sites) == 0:
@@ -129,4 +133,3 @@ if ableCnt > 0:
     chat.sendMessage(chat_id = chat_id, text=string)
 
 driver.quit()
-
