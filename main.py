@@ -6,10 +6,10 @@ import time
 import telegram
 
 # Telegram Setting
-chat = telegram.Bot(token = "1824090062:AAGCxw7oRV_RpC9kWrt8DN4fblurkzpnRn4")
+chat = telegram.Bot(token = "1824090062:AAEc9qvc0zpgqHWJW_oqo3KbP-psv_mAgDk")
 chat_id = "-1001512203758"
 #chat_id = "1510104965"
-# text = "Hi"
+# text = "abcd"
 # chat.sendMessage(chat_id = chat_id, text=text)
 # quit()
 
@@ -18,7 +18,7 @@ options = webdriver.ChromeOptions()
 options.add_argument('headless')        # 웹 브라우저를 띄우지 않는 headless chrome 옵션
 options.add_argument('disable-gpu')     # GPU 사용 안함
 options.add_argument('lang=ko_KR')      # 언어 설정
-options.add_experimental_option('excludeSwitches', ['enable-logging'])  # 로그 숨김
+#options.add_experimental_option('excludeSwitches', ['enable-logging'])  # 로그 숨김
 
 driver = webdriver.Chrome("./chromedriver", options=options)
 
@@ -26,7 +26,7 @@ t = ['월', '화', '수', '목', '금', '토', '일']
 
 #### 네이버예약 ####
 dicCamp = {'481805':'돌고래', '14972':'마리원', '163771':'아라뜰', '164989':'물왕숲', '278756':'대부도비치', '59772':'아버지의숲', '160759':'마장호수휴'}
-#dicCamp = {'164989':'물왕숲'}
+#dicCamp = {'19384':'힐링별밤'}
 
 # 주말 체크
 chkday = date.today()
@@ -51,6 +51,7 @@ driver.implicitly_wait(3)
 
 # quit()
 
+
 sites = []
 sitelist = ""
 string = ""
@@ -67,9 +68,11 @@ for k in dicCamp.keys():
             result = "O"
             finds = driver.find_elements_by_css_selector(".summary_body .desc_title")
             for j in finds:
-                if j.text == "카라반 CARAVAN" and j.text == "캠프렛 CAMPLET" and j.text == "차박&루프탑&파쇄석 존":       # 물왕숲 제외 SITE
+                if j.text == "카라반 CARAVAN" or j.text == "캠프렛 CAMPLET" or j.text == "차박&루프탑&파쇄석 존":       # 물왕숲 제외 SITE
                     continue
-                if j.text.find("펜션") > 0:
+                elif k == '278756' and (j.text.find("캠핑 B") > -1 or j.text.find("캠핑 C") > -1 or j.text.find("캠핑 D") > -1):     # 대부도비치 제외 SITE
+                    continue
+                elif j.text.find("펜션") > -1 or j.text.find("캠핑카") > -1 or j.text.find("방가로") > -1 or j.text.find("커플") > -1:
                     continue
                 else:
                     sites.append(j.text.replace("(2박 우선예약)", ""))
@@ -99,6 +102,7 @@ string = "장호비치\n"
 url = "https://forest.maketicket.co.kr/ticket/GD41"
 ableCnt = 0
 driver.get(url)
+driver.switch_to.window(driver.window_handles[0])
 
 # 이번달
 rMonth = driver.find_element_by_css_selector("caption").text
@@ -131,5 +135,24 @@ for i in range(0, len(days)):
 string += url
 if ableCnt > 0:
     chat.sendMessage(chat_id = chat_id, text=string)
+
+'''
+#### 캠프운악 ####
+# string = "캠프운악\n"
+# url = "https://www.campunak.co.kr/Reservation2/Reservation_Site.aspx?sdate=2021-07-02"
+# ableCnt = 0
+# driver.get("https://www.campunak.co.kr/login.aspx")
+# #a = driver.find_element_by_class_name("checkin_table")
+# driver.find_element_by_id("ContentMain_txtUserID").send_keys("baezzaes@naver.com")
+# driver.find_element_by_id("ContentMain_txtUserPW").send_keys("bjs0321")
+# driver.find_element_by_id("ContentMain_btnMemberLogin").click()
+# driver.get(url)
+# driver.find_element_by_id("ContentMain_btnSearch").click()
+# time.sleep(1)
+# sites = driver.find_elements_by_css_selector(".site_choice .payamount")
+# ables = driver.find_elements_by_css_selector(".site_choice .none")
+# for i in range(0, len(sites)):
+#     print(sites[i].text + " | " + ables[i].text)
+'''
 
 driver.quit()
