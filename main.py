@@ -18,15 +18,12 @@ options = webdriver.ChromeOptions()
 options.add_argument('headless')        # 웹 브라우저를 띄우지 않는 headless chrome 옵션
 options.add_argument('disable-gpu')     # GPU 사용 안함
 options.add_argument('lang=ko_KR')      # 언어 설정
-#options.add_experimental_option('excludeSwitches', ['enable-logging'])  # 로그 숨김
+options.add_experimental_option('excludeSwitches', ['enable-logging'])  # 로그 숨김
 
 driver = webdriver.Chrome("./chromedriver", options=options)
+driver.implicitly_wait(3)
 
 t = ['월', '화', '수', '목', '금', '토', '일']
-
-#### 네이버예약 ####
-dicCamp = {'481805':'돌고래', '14972':'마리원', '163771':'아라뜰', '164989':'물왕숲', '278756':'대부도비치', '59772':'아버지의숲', '160759':'마장호수휴'}
-#dicCamp = {'19384':'힐링별밤'}
 
 # 주말 체크
 chkday = date.today()
@@ -37,13 +34,17 @@ while True:
     if chkday.weekday() == 4:
         fridays.append(str(chkday))
         sundays.append(str(chkday + timedelta(days=2)))
+        # 2021 추석연휴
+        if str(chkday) == "2021-09-17":
+            fridays.append(str("2021-09-18"))
+            sundays.append(str("2021-09-20"))
         weekNo+=1
         if weekNo == 12:
             break
     chkday = chkday + timedelta(days=1)
 
 #driver.get("https://m.booking.naver.com/booking/3/bizes/481805/items?startDate=2021-07-30&endDate=2021-08-01")
-driver.implicitly_wait(3)
+
 # try:
 #     driver.find_element_by_class_name("summary_body")
 # except Exception as error:
@@ -55,6 +56,11 @@ driver.implicitly_wait(3)
 sites = []
 sitelist = ""
 string = ""
+
+#### 네이버예약 ####
+dicCamp = {'481805':'돌고래', '14972':'마리원', '163771':'아라뜰', '164989':'물왕숲', '278756':'대부도비치', '59772':'아버지의숲', '160759':'마장호수휴', '1142':'캄파슬로우'}
+#dicCamp = {'1142':'캄파슬로우'}
+
 for k in dicCamp.keys():
     for i in range(0,len(fridays)):
         driver.get("https://m.booking.naver.com/booking/3/bizes/"+ k +"/items?startDate=" + fridays[i] + "&endDate=" + sundays[i])
@@ -75,7 +81,13 @@ for k in dicCamp.keys():
                 elif j.text.find("펜션") > -1 or j.text.find("캠핑카") > -1 or j.text.find("방가로") > -1 or j.text.find("커플") > -1:
                     continue
                 else:
-                    sites.append(j.text.replace("(2박 우선예약)", ""))
+                    if k == '163771':       # 아라뜰 선호 SITE
+                        if j.text.find("B7") > -1 or j.text.find("B8") > -1 or j.text.find("B9") > -1:
+                            sites.append(j.text.replace("(2박 우선예약)", ""))
+                        else:
+                            continue
+                    else:
+                        sites.append(j.text)
 
             if len(sites) == 0:
                 sitelist = ""
@@ -95,6 +107,69 @@ for k in dicCamp.keys():
         if int(time.strftime('%H')) == 0 or int(time.strftime('%H')) >= 6:   # 새벽시간 알림 차단
             chat.sendMessage(chat_id = chat_id, text=string)
         string = ""
+
+
+### 땡큐캠핑예약 ###
+dicCamp = {'1761':'나린오토캠핑'}
+#dicCamp = {'2208':'캠핑브릿지'}
+for k in dicCamp.keys():
+    # url = "https://m.thankqcamping.com/resv/view.hbb?cseq="+k
+    # driver.get(url)
+    # driver.find_element_by_css_selector("button[type=button]").click()
+    # time.sleep(1)
+    # driver.switch_to.window(driver.window_handles[1])
+
+    for i in range(0,len(fridays)):
+        try:
+            url = "https://r.camperstory.com/resMain.hbb?campseq="+k+"&res_dt="+fridays[i].replace("-","")+"&res_edt="+sundays[i].replace("-","")+"&ser_res_days=2"
+            #url = "https://r.camperstory.com/resMain.hbb?#"+fridays[i].replace("-","")+"^"+sundays[i].replace("-","")+"^2"
+            #driver.get(url)
+            driver.get(url)
+
+            # 공지사항 팝업 레이어 뜨는경우, 닫기
+            pop = driver.find_element_by_class_name("dim_layer")
+            if pop.get_attribute("style") != "":
+                driver.find_element_by_class_name("btn_layerClose").click()
+
+            time.sleep(1)
+
+            siteNames = driver.find_elements_by_css_selector(".site_info > .name")
+            siteStatus = driver.find_elements_by_css_selector(".site_info > .res_num")
+            for j in range(0, len(siteNames)):
+                if siteStatus[j].text.find("예약완료") > -1 or siteStatus[j].text.find("예약불가") > -1:
+                    continue
+                else:
+                    if k == '1761':             # 나린오토캠핑 선호 SITE
+                        if siteNames[j].text == "해지개프리미엄데크":
+                            sites.append(siteNames[j].text + " " + siteStatus[j].text.replace("예약가능", ""))
+                    else:
+                        sites.append(siteNames[j].text + " " + siteStatus[j].text.replace("예약가능", ""))
+
+            if len(sites) == 0:
+                sitelist = ""
+                result = "X"
+            #elif len(sites) >= 1 and len(sites) <=5:
+            else:
+                sitelist = str(sites)
+                result = "O"
+            #elif len(sites) > 5:
+                #sitelist = "예약가능 사이트수 : " + str(len(sites)) + "건"
+
+            print(dicCamp[k] + " / " + fridays[i] + " ~ " + sundays[i] + " : " + result + (" - " if len(sites) > 0 else "") + sitelist)
+            if result == "O":
+                string += dicCamp[k] + " / " + fridays[i] + " ~ " + sundays[i] + "\n " + sitelist + "\n" + "https://r.camperstory.com/resMain.hbb?campseq="+k+"&res_dt="+fridays[i].replace("-","")+"&res_edt="+sundays[i].replace("-","")+"&ser_res_days=2\n"
+
+            sites = []
+            sitelist = ""
+        except Exception as error:
+            print(error)
+            break
+
+    # if string != "":
+    #     if int(time.strftime('%H')) == 0 or int(time.strftime('%H')) >= 6:   # 새벽시간 알림 차단
+    #         chat.sendMessage(chat_id = chat_id, text=string)
+    #     string = ""
+
 
 
 #### 장호비치 ####
@@ -136,23 +211,53 @@ string += url
 if ableCnt > 0:
     chat.sendMessage(chat_id = chat_id, text=string)
 
-'''
+
+
 #### 캠프운악 ####
-# string = "캠프운악\n"
-# url = "https://www.campunak.co.kr/Reservation2/Reservation_Site.aspx?sdate=2021-07-02"
-# ableCnt = 0
-# driver.get("https://www.campunak.co.kr/login.aspx")
-# #a = driver.find_element_by_class_name("checkin_table")
-# driver.find_element_by_id("ContentMain_txtUserID").send_keys("baezzaes@naver.com")
-# driver.find_element_by_id("ContentMain_txtUserPW").send_keys("bjs0321")
-# driver.find_element_by_id("ContentMain_btnMemberLogin").click()
-# driver.get(url)
-# driver.find_element_by_id("ContentMain_btnSearch").click()
-# time.sleep(1)
-# sites = driver.find_elements_by_css_selector(".site_choice .payamount")
-# ables = driver.find_elements_by_css_selector(".site_choice .none")
-# for i in range(0, len(sites)):
-#     print(sites[i].text + " | " + ables[i].text)
-'''
+campName = "캠프운악"
+string = ""
+driver.get("https://www.campunak.co.kr/login.aspx")
+driver.find_element_by_id("ContentMain_txtUserID").send_keys("baezzaes@naver.com")
+driver.find_element_by_id("ContentMain_txtUserPW").send_keys("bjs0321")
+driver.find_element_by_id("ContentMain_btnMemberLogin").click()
+for i in range(0,len(fridays)):
+    url = "https://www.campunak.co.kr/Reservation2/Reservation_Site.aspx?sdate=" + fridays[i] + "&edate=" + sundays[i]
+    #url = "https://www.campunak.co.kr/Reservation2/Reservation_Site.aspx?sdate=2021-08-13&edate=2021-08-14"
+    ableCnt = 0
+    driver.get(url)
+    driver.find_element_by_id("ContentMain_btnSearch").click()
+    time.sleep(1)
+    try:
+        findSites = driver.find_elements_by_css_selector(".site_choice .payamount")
+        findAbles = driver.find_elements_by_css_selector(".site_choice .none")
+        for j in range(0, len(findSites)):
+            if findAbles[j].text == "선택가능":
+                sites.append(findSites[j].text)
+                #print(findSites[i].text)
+                result = "O"
+        if len(sites) == 0:
+            sitelist = ""
+            result = "X"
+        elif len(sites) >= 1 and len(sites) <=5:
+            sitelist = str(sites)
+        elif len(sites) > 5:
+            sitelist = "예약가능 사이트수 : " + str(len(sites)) + "건"
+
+        print(campName + " / " + fridays[i] + " ~ " + sundays[i] + " : " + result + (" - " if len(sites) > 0 else "") + sitelist)
+        if result == "O":
+            string += campName + " / " + fridays[i] + " ~ " + sundays[i] + "\n " + sitelist + "\n" + "https://www.campunak.co.kr/Reservation2/Reservation_Site.aspx?sdate=" + fridays[i] + "&eDate=" + sundays[i] +"\n"
+
+        sites = []
+        sitelist = ""
+    except Exception as error:
+        print(error)
+        break
+
+if string != "":
+    chat.sendMessage(chat_id = chat_id, text=string)
+    string = ""
+
+
+
 
 driver.quit()
