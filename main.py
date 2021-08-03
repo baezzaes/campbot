@@ -6,7 +6,7 @@ import time
 import telegram
 
 # Telegram Setting
-chat = telegram.Bot(token = "1824090062:AAEc9qvc0zpgqHWJW_oqo3KbP-psv_mAgDk")
+chat = telegram.Bot(token = "1824090062:AAGSbhMFKkanJ2uR1R8uEjLR4adLhghAXkg")
 chat_id = "-1001512203758"
 #chat_id = "1510104965"
 # text = "abcd"
@@ -38,6 +38,14 @@ while True:
         if str(chkday) == "2021-09-17":
             fridays.append(str("2021-09-18"))
             sundays.append(str("2021-09-20"))
+        # 2021 개천절 대체공휴일
+        elif str(chkday) == "2021-10-01":
+            fridays.append(str("2021-10-02"))
+            sundays.append(str("2021-10-04"))
+        # 2021 한글날 대체공휴일
+        elif str(chkday) == "2021-10-08":
+            fridays.append(str("2021-10-09"))
+            sundays.append(str("2021-10-11"))
         weekNo+=1
         if weekNo == 12:
             break
@@ -58,8 +66,8 @@ sitelist = ""
 string = ""
 
 #### 네이버예약 ####
-dicCamp = {'481805':'돌고래', '14972':'마리원', '163771':'아라뜰', '164989':'물왕숲', '278756':'대부도비치', '59772':'아버지의숲', '160759':'마장호수휴', '1142':'캄파슬로우'}
-#dicCamp = {'1142':'캄파슬로우'}
+dicCamp = {'481805':'돌고래', '14972':'마리원', '163771':'아라뜰', '278756':'대부도비치', '59772':'아버지의숲', '160759':'마장호수휴', '1142':'캄파슬로우', '100853':'두리캠핑', '83676':'서종힐링'}
+#dicCamp = {'164989':'물왕숲'}
 
 for k in dicCamp.keys():
     for i in range(0,len(fridays)):
@@ -78,23 +86,34 @@ for k in dicCamp.keys():
                     continue
                 elif k == '278756' and (j.text.find("캠핑 B") > -1 or j.text.find("캠핑 C") > -1 or j.text.find("캠핑 D") > -1):     # 대부도비치 제외 SITE
                     continue
-                elif j.text.find("펜션") > -1 or j.text.find("캠핑카") > -1 or j.text.find("방가로") > -1 or j.text.find("커플") > -1:
+                elif k == '299264' and (j.text.find("Hill") > -1 or j.text.find("Pond") > -1):     # 해여림빌리지 제외 SITE
+                    continue
+                elif k == '14972' and (j.text.find("숲 14") > -1 or j.text.find("숲 15") > -1 or j.text.find("숲 16") > -1):
+                    continue
+                elif j.text.find("펜션") > -1 or j.text.find("캠핑카") > -1 or j.text.find("방가로") > -1 or j.text.find("커플") > -1 or j.text.find("하우스") > -1 or j.text.find("캠프닉") > -1 or j.text.find("단골전용") > -1:
                     continue
                 else:
                     if k == '163771':       # 아라뜰 선호 SITE
-                        if j.text.find("B7") > -1 or j.text.find("B8") > -1 or j.text.find("B9") > -1:
+                        if j.text.find("B7") > -1 or j.text.find("B8") > -1 or j.text.find("B9") > -1 or j.text.find("A23") > -1 or j.text.find("A17") > -1:
                             sites.append(j.text.replace("(2박 우선예약)", ""))
                         else:
                             continue
+
+                    elif k == '83676':      # 서종힐링 선호 SITE
+                        if j.text.find("A2") > -1 or j.text.find("A3") > -1 or j.text.find("A4") > -1 or j.text.find("A6") > -1 or j.text.find("A7") > -1 or j.text.find("A8") > -1:
+                            sites.append(j.text)
+                        else:
+                            continue
+
                     else:
                         sites.append(j.text)
 
             if len(sites) == 0:
                 sitelist = ""
                 result = "X"
-            elif len(sites) >= 1 and len(sites) <=5:
+            elif len(sites) >= 1 and len(sites) <=10:
                 sitelist = str(sites)
-            elif len(sites) > 5:
+            elif len(sites) > 10:
                 sitelist = "예약가능 사이트수 : " + str(len(sites)) + "건"
 
         print(dicCamp[k] + " / " + fridays[i] + " ~ " + sundays[i] + " : " + result + (" - " if len(sites) > 0 else "") + sitelist)
@@ -110,7 +129,7 @@ for k in dicCamp.keys():
 
 
 ### 땡큐캠핑예약 ###
-dicCamp = {'1761':'나린오토캠핑'}
+dicCamp = {'1761':'나린오토캠핑', '1578':'인제캠핑타운', '1890':'블리스', '2067':'에코유'}
 #dicCamp = {'2208':'캠핑브릿지'}
 for k in dicCamp.keys():
     # url = "https://m.thankqcamping.com/resv/view.hbb?cseq="+k
@@ -142,6 +161,17 @@ for k in dicCamp.keys():
                     if k == '1761':             # 나린오토캠핑 선호 SITE
                         if siteNames[j].text == "해지개프리미엄데크":
                             sites.append(siteNames[j].text + " " + siteStatus[j].text.replace("예약가능", ""))
+                    elif k == '1578':           # 인제캠핑타운 제외 SITE
+                        if siteNames[j].text.find("오토구역") > -1:
+                            continue
+                    elif k == '1890':           # 블리스 선호 SITE
+                        if siteNames[j].text.find("MV") > -1:
+                           sites.append(siteNames[j].text + " " + siteStatus[j].text.replace("예약가능", ""))
+                    elif k == '2067':           # 에코유 선호 SITE
+                        if siteNames[j].text.find("G사이트") > -1 or siteNames[j].text.find("H사이트") > -1:
+                           sites.append(siteNames[j].text + " " + siteStatus[j].text.replace("예약가능", ""))
+                    elif siteNames[j].text.find("펜션") > -1 or siteNames[j].text.find("캠핑카") > -1 or siteNames[j].text.find("방가로") > -1 or siteNames[j].text.find("커플") > -1 or siteNames[j].text.find("하우스") > -1 or siteNames[j].text.find("캠프닉") > -1 or siteNames[j].text.find("글램핑") > -1:
+                        continue
                     else:
                         sites.append(siteNames[j].text + " " + siteStatus[j].text.replace("예약가능", ""))
 
@@ -165,10 +195,10 @@ for k in dicCamp.keys():
             print(error)
             break
 
-    # if string != "":
-    #     if int(time.strftime('%H')) == 0 or int(time.strftime('%H')) >= 6:   # 새벽시간 알림 차단
-    #         chat.sendMessage(chat_id = chat_id, text=string)
-    #     string = ""
+    if string != "":
+        if int(time.strftime('%H')) == 0 or int(time.strftime('%H')) >= 6:   # 새벽시간 알림 차단
+            chat.sendMessage(chat_id = chat_id, text=string)
+        string = ""
 
 
 
@@ -209,7 +239,8 @@ for i in range(0, len(days)):
 
 string += url
 if ableCnt > 0:
-    chat.sendMessage(chat_id = chat_id, text=string)
+    if int(time.strftime('%H')) == 0 or int(time.strftime('%H')) >= 6:   # 새벽시간 알림 차단
+        chat.sendMessage(chat_id = chat_id, text=string)
 
 
 
@@ -238,9 +269,9 @@ for i in range(0,len(fridays)):
         if len(sites) == 0:
             sitelist = ""
             result = "X"
-        elif len(sites) >= 1 and len(sites) <=5:
+        elif len(sites) >= 1 and len(sites) <=10:
             sitelist = str(sites)
-        elif len(sites) > 5:
+        elif len(sites) > 10:
             sitelist = "예약가능 사이트수 : " + str(len(sites)) + "건"
 
         print(campName + " / " + fridays[i] + " ~ " + sundays[i] + " : " + result + (" - " if len(sites) > 0 else "") + sitelist)
@@ -254,7 +285,8 @@ for i in range(0,len(fridays)):
         break
 
 if string != "":
-    chat.sendMessage(chat_id = chat_id, text=string)
+    if int(time.strftime('%H')) == 0 or int(time.strftime('%H')) >= 6:   # 새벽시간 알림 차단
+        chat.sendMessage(chat_id = chat_id, text=string)
     string = ""
 
 
