@@ -163,7 +163,7 @@ for k in dicCamp.keys():
                     if k == '1761':             # 나린오토캠핑 선호 SITE
                         if siteNames[j].text == "해지개프리미엄데크":
                             sites.append(siteNames[j].text + " " + siteStatus[j].text.replace("예약가능", ""))
-                    elif k == '1578' and siteNames[j].text.find("오토구역") > -1:           # 인제캠핑타운 제외 SITE                        
+                    elif k == '1578' and siteNames[j].text.find("오토구역") > -1:           # 인제캠핑타운 제외 SITE
                         continue
                     elif k == '1890':           # 블리스 선호 SITE
                         if siteNames[j].text.find("MV사이트") > -1:
@@ -217,11 +217,12 @@ days = driver.find_elements_by_css_selector("td[id^=calendar]>strong")
 finds = driver.find_elements_by_css_selector(".s3 span")
 for i in range(0, len(days)):
     if finds[i].text != "0":
-        ableCnt+=1
         rDate = rDate.replace(day = int(days[i].text))
         day = rDate.weekday()
         print(rDate.strftime("%m-%d") + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개")
-        string += rDate.strftime("%m-%d") + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개\n"
+        if t[day] in ['금', '토']:
+            ableCnt+=1
+            string += rDate.strftime("%m-%d") + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개\n"
 
 # 다음달
 driver.find_element_by_css_selector(".nextmonth").click()
@@ -232,11 +233,12 @@ days = driver.find_elements_by_css_selector("td[id^=calendar]>strong")
 finds = driver.find_elements_by_css_selector(".s3 span")
 for i in range(0, len(days)):
     if finds[i].text != "0":
-        ableCnt+=1
         rDate = rDate.replace(day = int(days[i].text))
         day = rDate.weekday()
         print(rDate.strftime("%m-%d") + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개")
-        string += rDate.strftime("%m-%d") + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개\n"
+        if t[day] in ['금', '토']:
+            ableCnt+=1
+            string += rDate.strftime("%m-%d") + "(" + t[day] + ") : 오토캠핑 " + finds[i].text + "개\n"
 
 string += url
 if ableCnt > 0:
