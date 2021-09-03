@@ -66,8 +66,8 @@ sitelist = ""
 string = ""
 
 #### 네이버예약 ####
-dicCamp = {'59772':'아버지의숲', '481805':'돌고래', '14972':'마리원', '163771':'아라뜰', '278756':'대부도비치',   '1142':'캄파슬로우', '100853':'두리캠핑', '83676':'서종힐링', '394663':'답게', '160905':'리프레쉬'}
-#dicCamp = {'164989':'물왕숲', '160759':'마장호수휴', '557521':'캠핑느루'}
+dicCamp = {'59772':'아버지의숲', '481805':'돌고래', '14972':'마리원', '163771':'아라뜰', '278756':'대부도비치', '1142':'캄파슬로우', '100853':'두리캠핑', '83676':'서종힐링', '394663':'답게', '529626':'아롱별', '299264':'해여림빌리지'}
+#dicCamp = {'164989':'물왕숲', '160759':'마장호수휴', '557521':'캠핑느루', '160905':'리프레쉬'}
 
 for k in dicCamp.keys():
     for i in range(0,len(fridays)):
@@ -102,7 +102,7 @@ for k in dicCamp.keys():
                             continue
 
                     elif k == '83676':      # 서종힐링 선호 SITE
-                        if j.text.find("A2") > -1 or j.text.find("A3") > -1 or j.text.find("A4") > -1 or j.text.find("A6") > -1 or j.text.find("A7") > -1 or j.text.find("A8") > -1:
+                        if j.text.find("A2") > -1 or j.text.find("A3") > -1 or j.text.find("A4") > -1 or j.text.find("A5") > -1 or j.text.find("A6") > -1 or j.text.find("A7") > -1 or j.text.find("A8") > -1:
                             sites.append(j.text)
                         else:
                             continue
@@ -131,7 +131,7 @@ for k in dicCamp.keys():
 
 
 ### 땡큐캠핑예약 ###
-dicCamp = {'1578':'인제캠핑타운', '2067':'에코유', '1890':'블리스', '1761':'나린오토캠핑'}
+dicCamp = {'1578':'인제캠핑타운', '2067':'에코유', '1890':'블리스', '2208':'캠핑브릿지', '3638':'캠프인디오', '1761':'나린오토캠핑'}
 #dicCamp = {'2208':'캠핑브릿지'}
 for k in dicCamp.keys():
     # url = "https://m.thankqcamping.com/resv/view.hbb?cseq="+k
