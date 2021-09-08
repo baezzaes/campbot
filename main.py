@@ -302,11 +302,21 @@ ableCnt = 0
 rYear = date.today().year
 rMonth = date.today().month
 for k in range(0, 3):
-    rMonth = rMonth + k
     if rMonth == 13:
         rYear = rYear + 1
         rMonth = 1
     for j in range(20, 25):
+        if j == 20:
+            siteArea = "오토캠핑 A1 ~ A20"
+        elif j == 21:
+            siteArea = "오토캠핑 A21 ~ A40"
+        elif j == 22:
+            siteArea = "오토캠핑 A41 ~ A60"
+        elif j == 23:
+            siteArea = "오토캠핑 A61 ~ A78"
+        elif j == 24:
+            siteArea = "오토캠핑 A89 ~ A100"
+        tmpString = ""
         ableCnt = 0
         url = "http://www.namastte.kr/popup.php?m="+str(rMonth)+"&Y="+str(rYear)+"&s=step01&searchRoomTy="+str(j)+"&t=resve&innb=5b7d0fe8da05f5b7d0fe8da0a1"
         driver.get(url)
@@ -317,12 +327,17 @@ for k in range(0, 3):
             day = finds[i].find_element_by_xpath('..').get_attribute("data-date")
             rDate = rDate.replace(day = int(day))
             weekday = rDate.weekday()
-            if t[weekday] == '금' or t[weekday] == '토':
+            if t[weekday] == '토':
                 ableCnt+=1
                 print(rDate.strftime("%m-%d") + "(" + t[weekday] + ") : " + finds[i].text)
-                string += rDate.strftime("%m-%d") + "(" + t[weekday] + ") : " + finds[i].text + "\n"
+                tmpString += rDate.strftime("%m-%d") + "(" + t[weekday] + ") : " + finds[i].text + "\n"
         if ableCnt > 0:
-            string += url + "\n"
+            if ableCnt >= 10:
+                string += str(rMonth) + "월 " + siteArea + " 예약가능 10건 이상\n" + url + "\n"
+            else:
+                string += tmpString + url + "\n"
+
+    rMonth = rMonth + 1
 
 if string != "":
     string = campName + "\n" + string
