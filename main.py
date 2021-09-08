@@ -295,4 +295,38 @@ if string != "":
 
 
 
+### 연천재인폭포오토캠핑장 ###
+campName = "연천재인폭포오토캠핑장"
+string = ""
+ableCnt = 0
+rYear = date.today().year
+rMonth = date.today().month
+for k in range(0, 3):
+    rMonth = rMonth + k
+    if rMonth == 13:
+        rYear = rYear + 1
+        rMonth = 1
+    for j in range(20, 25):
+        ableCnt = 0
+        url = "http://www.namastte.kr/popup.php?m="+str(rMonth)+"&Y="+str(rYear)+"&s=step01&searchRoomTy="+str(j)+"&t=resve&innb=5b7d0fe8da05f5b7d0fe8da0a1"
+        driver.get(url)
+        #finds = driver.find_elements_by_css_selector(".icon_standby")
+        finds = driver.find_elements_by_css_selector(".icon_possible")
+        rDate = datetime.strptime(str(rYear) + ". " + str(rMonth).zfill(2)+".01", "%Y. %m.%d")
+        for i in range(1, len(finds)):
+            day = finds[i].find_element_by_xpath('..').get_attribute("data-date")
+            rDate = rDate.replace(day = int(day))
+            weekday = rDate.weekday()
+            if t[weekday] == '금' or t[weekday] == '토':
+                ableCnt+=1
+                print(rDate.strftime("%m-%d") + "(" + t[weekday] + ") : " + finds[i].text)
+                string += rDate.strftime("%m-%d") + "(" + t[weekday] + ") : " + finds[i].text + "\n"
+        if ableCnt > 0:
+            string += url + "\n"
+
+if string != "":
+    string = campName + "\n" + string
+    if int(time.strftime('%H')) == 0 or int(time.strftime('%H')) >= 6:   # 새벽시간 알림 차단
+        chat.sendMessage(chat_id = chat_id, text=string)
+
 driver.quit()
